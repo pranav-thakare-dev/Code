@@ -20,7 +20,6 @@ public class ZookeeperTestController {
     private final DistributedLockService distributedLockService;
     private final ReadWriteLockService readWriteLockService;
     private final BarrierService barrierService;
-    private final DistributedQueueService distributedQueueService;
     private final SharedCounterService sharedCounterService;
 
     public ZookeeperTestController(
@@ -30,7 +29,6 @@ public class ZookeeperTestController {
             DistributedLockService distributedLockService,
             ReadWriteLockService readWriteLockService,
             BarrierService barrierService,
-            DistributedQueueService distributedQueueService,
             SharedCounterService sharedCounterService) {
         this.client = client;
         this.serviceDiscovery = serviceDiscovery;
@@ -38,7 +36,6 @@ public class ZookeeperTestController {
         this.distributedLockService = distributedLockService;
         this.readWriteLockService = readWriteLockService;
         this.barrierService = barrierService;
-        this.distributedQueueService = distributedQueueService;
         this.sharedCounterService = sharedCounterService;
     }
 
@@ -163,22 +160,6 @@ public class ZookeeperTestController {
         return barrierService.leaveDoubleBarrier(timeout);
     }
 
-    // ========== Queue Endpoints ==========
-
-    @PostMapping("/queue/put")
-    public Map<String, Object> putMessage(@RequestParam String message) throws Exception {
-        return distributedQueueService.putMessage(message);
-    }
-
-    @GetMapping("/queue/consumed")
-    public Map<String, Object> getConsumedMessages() {
-        return distributedQueueService.getConsumedMessages();
-    }
-
-    @PostMapping("/queue/clear")
-    public Map<String, Object> clearConsumedMessages() {
-        return distributedQueueService.clearConsumedMessages();
-    }
 
     // ========== SharedCount Endpoints ==========
 
@@ -273,13 +254,7 @@ public class ZookeeperTestController {
         doubleBarriers.put("Enter", "POST /zk-test/double-barrier/enter?timeout=30");
         doubleBarriers.put("Leave", "POST /zk-test/double-barrier/leave?timeout=30");
         recipes.put("Double Barrier", doubleBarriers);
-        
-        Map<String, String> queue = new HashMap<>();
-        queue.put("Put Message", "POST /zk-test/queue/put?message=hello");
-        queue.put("Get Consumed Messages", "GET /zk-test/queue/consumed");
-        queue.put("Clear Messages", "POST /zk-test/queue/clear");
-        recipes.put("Queue", queue);
-        
+
         Map<String, String> sharedCount = new HashMap<>();
         sharedCount.put("Get", "GET /zk-test/counter/shared/get");
         sharedCount.put("Set", "POST /zk-test/counter/shared/set?value=10");
